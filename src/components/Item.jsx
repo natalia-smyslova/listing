@@ -16,56 +16,64 @@ function Item(props) {
 
     const { item } = props;
 
-    // const name = item.title.length > 50 ? `${item.title.slice(0, 50)}...` : item.title;
-    // Не может никак прочитать свойство length
-    let image = item.MainImage;
-    image = image.url_570xN;
+    let imageTitle;
 
-    // При выводе стоимости предложения необходимо учитывать валюту. Если цена задана:
-    // в долларах США, код USD, то цену вывести в формате $50.00;
-    // в евро, код EUR, то цену вывести в формате €50.00;
-    // в остальных случаях цену вывести в формате 50.00 GBP, где GBP — код валюты.
+    if (item.title) {
+        if (item.title.length > 50) {
+            imageTitle = item.title.slice(0, 50) + '...';
+        } else {
+            imageTitle = item.title;
+        }
+    } else {
+        imageTitle = 'Image title';
+    }
+
+    let imageUrl;
+
+    if (item.MainImage) {
+        imageUrl = item.MainImage.url_570xN;
+    }
 
     let colorLevel;
-
+    
     if (item.quantity <= 10) {
         colorLevel = "level-low"
-    }
-    if (item.quantity > 10 && item.quantity <= 20) {
+    } else if (item.quantity > 10 && item.quantity <= 20) {
         colorLevel = "level-medium"
+    } else {
+        colorLevel = "level-high";
     }
-    else {
-        colorLevel = "level-high"
-    };
 
     let pricetag;
 
-    if (currency_code === 'USD') {
-        pricetag = `$${price}`
-      } else if (currency_code === 'EUR') {
-        pricetag = `€${price}`
+    if (item.currency_code === 'USD') {
+        pricetag = `$${item.price}`
+      } else if (item.currency_code === 'EUR') {
+        pricetag = `€${item.price}`
       } else {
-        pricetag = `${price} ${currency_code}`
+        pricetag = `${item.price}${item.currency_code}`
       }
 
-    return (
-        <div className="item">
-            <div className="item-image">
-                <a href={item.url}>
-                    <img src={image.url_570xN}></img>
-                </a>
+    if (item.state === 'active') {
+        return (
+            <div className="item">
+                <div className="item-image">
+                    <a href={item.url}>
+                        <img src={imageUrl}></img>
+                    </a>
+                </div>
+                <div className="item-details">
+                    <p className="item-title">{imageTitle}</p>
+                    <p className="item-price">{pricetag}</p>
+                    <p className={colorLevel}>{item.quantity} left</p>
+                </div>
             </div>
-            <div className="item-details">
-                <p className="item-title"></p>
-                <p className="item-price">$3.99</p>
-                <p className={`item-quantity ${colorLevel}}`}>{item.quantity}left</p>
-            </div>
-        </div>
-    )
-
+        )
+    }
 }
 
 Item.propTypes = {
+    item: PropTypes.object,
     listing_id: PropTypes.number,
     url: PropTypes.string,
     MainImage: PropTypes.object,
